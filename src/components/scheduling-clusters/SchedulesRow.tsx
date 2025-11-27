@@ -1,28 +1,72 @@
 import type { MachineSchedule } from "@/data/types";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useMemo } from "react";
 import MachineScheduleColumn from "./MachineScheduleColumn";
 
 interface SchedulesRowProps {
-  schedules: MachineSchedule[];
-  variant: "before" | "after";
+  before: MachineSchedule[];
+  after: MachineSchedule[];
 }
 
-const SchedulesRow: React.FC<SchedulesRowProps> = ({ schedules, variant }) => {
-  const [activeDate] = useState(new Date("2023-08-07"));
+type MachinePair = {
+  location: string;
+  before?: MachineSchedule;
+  after?: MachineSchedule;
+};
+
+const SchedulesRow: React.FC<SchedulesRowProps> = ({ before, after }) => {
+  const machinePairs = useMemo<MachinePair[]>(() => {
+    const map = new Map<string, MachinePair>();
+
+    const ensurePair = (location: string): MachinePair => {
+      let pair = map.get(location);
+      if (!pair) {
+        pair = { location };
+        map.set(location, pair);
+      }
+      return pair;
+    };
+
+    for (const sched of before) {
+      const pair = ensurePair(sched.location);
+      pair.before = sched;
+    }
+
+    for (const sched of after) {
+      const pair = ensurePair(sched.location);
+      pair.after = sched;
+    }
+
+    const pairs = Array.from(map.values());
+    pairs.sort((a, b) => {
+      const aName =
+        a.before?.resource?.pretty_name ??
+        a.after?.resource?.pretty_name ??
+        a.location;
+      const bName =
+        b.before?.resource?.pretty_name ??
+        b.after?.resource?.pretty_name ??
+        b.location;
+      return aName.localeCompare(bName);
+    });
+
+    return pairs;
+  }, [before, after]);
 
   return (
-    <div className={cn("flex flex-row w-full min-h-screen gap-4")}>
-      {schedules.map((s) => (
-        <MachineScheduleColumn
-          key={s.location}
-          schedule={s}
-          activeDate={activeDate}
-          variant={variant}
-        />
+    <div
+      className={cn(
+        "grid gap-4",
+        "md:grid-cols-2",
+        "xl:grid-cols-5"
+      )}
+    >
+      {machinePairs.map((pair) => (
+        <MachineScheduleColumn key={pair.location} pair={pair} />
       ))}
     </div>
   );
 };
 
+export type { MachinePair };
 export default SchedulesRow;

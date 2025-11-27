@@ -1,7 +1,9 @@
 export function sortAppointmentsAsc<T extends { scheduled_time: string }>(
   list: T[]
 ): T[] {
-  return [...list].sort((a, b) => a.scheduled_time.localeCompare(b.scheduled_time));
+  return [...list].sort((a, b) =>
+    a.scheduled_time.localeCompare(b.scheduled_time)
+  );
 }
 
 export function groupAppointmentsByMachine<

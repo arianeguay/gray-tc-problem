@@ -46,5 +46,6 @@ export function buildTechniqueMaps(
   const techniqueToLabel = makeTechniqueLabelMap(activities);
   const techniqueToCluster = makeTechniqueToClusterMap(clusters);
   const techniqueToColor = makeTechniqueColorMap(clusters);
+
   return { techniqueToLabel, techniqueToCluster, techniqueToColor };
 }

@@ -1,5 +1,3 @@
-// src/utils/prepareData.ts
-
 import type {
   Appointment,
   Activity,
@@ -17,13 +15,11 @@ import {
   fetchMockMovedAppointments,
   fetchResources,
 } from "./api";
-import { buildTechniqueMaps as buildTechniqueMapsUtil } from "../utils/clustering";
+import { buildTechniqueMaps as buildTechniqueMapsUtil } from "./utils/clustering";
 
-/**
- * Construit les maps nécessaires à partir des activities et des clusters :
- * - technique → label humain
- * - technique → meta de cluster (nom, couleur)
- */
+/* ----------------------------------------------------------
+ *  Technique maps (labels + cluster metadata)
+ * -------------------------------------------------------- */
 function buildTechniqueMaps(activities: Activity[], clusters: Cluster[]) {
   const { techniqueToLabel, techniqueToCluster } = buildTechniqueMapsUtil(
     activities,
@@ -32,12 +28,9 @@ function buildTechniqueMaps(activities: Activity[], clusters: Cluster[]) {
   return { techniqueToLabel, techniqueToCluster };
 }
 
-/**
- * Enrichit un rendez-vous avec :
- * - clusterMeta (si applicable)
- * - techniqueLabel
- * - flags isMoved / isModified
- */
+/* ----------------------------------------------------------
+ *  Enrichissement d’un rendez-vous
+ * -------------------------------------------------------- */
 function enrichAppointment(
   appt: Appointment,
   techniqueToLabel: Map<string, string>,
@@ -50,7 +43,6 @@ function enrichAppointment(
   const isModified = appt.state?.modified === "modified";
 
   const techniqueLabel =
-    // certains rendez-vous optimisés ont déjà un `technique_label`
     (appt as any).technique_label || labelFromMap || appt.technique;
 
   return {
@@ -62,20 +54,16 @@ function enrichAppointment(
   };
 }
 
-/**
- * Regroupe les rendez-vous enrichis par machine (location)
- * et les trie par heure de rendez-vous.
- */
+/* ----------------------------------------------------------
+ *  Regroupe par machine → tri par heure
+ * -------------------------------------------------------- */
 function buildMachineSchedules(
   appointments: Appointment[],
   techniqueToLabel: Map<string, string>,
   techniqueToCluster: Map<string, ClusterMeta>,
   resources: Resource[]
 ): MachineSchedule[] {
-  const resourceByName = new Map<string, Resource>();
-  for (const res of resources) {
-    resourceByName.set(res.name, res);
-  }
+  const resourceByName = new Map(resources.map((r) => [r.name, r]));
 
   const byLocation = new Map<string, EnrichedAppointment[]>();
 
@@ -87,28 +75,22 @@ function buildMachineSchedules(
     );
     const key = appt.location;
 
-    if (!byLocation.has(key)) {
-      byLocation.set(key, []);
-    }
+    if (!byLocation.has(key)) byLocation.set(key, []);
     byLocation.get(key)!.push(enriched);
   }
 
   const schedules: MachineSchedule[] = [];
 
   for (const [location, appts] of byLocation.entries()) {
-    // Tri simple par horaire
     appts.sort((a, b) => a.scheduled_time.localeCompare(b.scheduled_time));
 
-    const resource = resourceByName.get(location);
-
     schedules.push({
-      resource,
+      resource: resourceByName.get(location),
       location,
       appointments: appts,
     });
   }
 
-  // Option : trier les machines par nom “pretty_name” ou par location
   schedules.sort((a, b) => {
     const aName = a.resource?.pretty_name || a.location;
     const bName = b.resource?.pretty_name || b.location;
@@ -118,21 +100,40 @@ function buildMachineSchedules(
   return schedules;
 }
 
-/**
- * Prépare toutes les données nécessaires à l’UI de comparaison
- * AVANT / APRÈS clustering.
- *
- * Cette fonction est volontairement simple et déterministe :
- * - pas d’accès réseau
- * - pas de state global
- * - pure transformation de données
- */
+/* ----------------------------------------------------------
+ *  Fusion BEFORE + moved = AFTER complet
+ * -------------------------------------------------------- */
+function applyMovedAppointments(
+  appointmentsBefore: Appointment[],
+  movedAppointments: Appointment[]
+): Appointment[] {
+  const movedById = new Map<string, Appointment>(
+    movedAppointments.map((a) => [a.id, a])
+  );
+
+  return appointmentsBefore.map((appt) => {
+    const moved = movedById.get(appt.id);
+    return moved ? { ...appt, ...moved } : appt;
+  });
+}
+
+/* ----------------------------------------------------------
+ *  Entrée principale
+ * -------------------------------------------------------- */
 export async function prepareData(): Promise<PreparedData> {
-  const clusters = await fetchClusters();
-  const activities = await fetchActivities();
-  const appointmentsBefore = await fetchAppointments();
-  const appointmentsAfter = await fetchMockMovedAppointments();
-  const resources = await fetchResources();
+  const [clusters, activities, appointmentsBefore, movedAppointments, resources] =
+    await Promise.all([
+      fetchClusters(),
+      fetchActivities(),
+      fetchAppointments(),
+      fetchMockMovedAppointments(),
+      fetchResources(),
+    ]);
+
+  const appointmentsAfter = applyMovedAppointments(
+    appointmentsBefore,
+    movedAppointments
+  );
 
   const { techniqueToLabel, techniqueToCluster } = buildTechniqueMaps(
     activities,
@@ -153,7 +154,6 @@ export async function prepareData(): Promise<PreparedData> {
     resources
   );
 
-  // On expose aussi la liste des clusters pour la légende
   const clusterMetaList: ClusterMeta[] = clusters.map((c) => ({
     id: c.id,
     name: c.name,
