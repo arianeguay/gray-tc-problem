@@ -51,7 +51,7 @@ Responsabilités :
 
 ---
 
-## `ScheduleColumn`
+## `SchedulesRow`
 Affiche l’une des deux vues :
 - **Before** (horaire actuel)
 - **After** (horaire optimisé)
@@ -62,7 +62,7 @@ Responsabilités :
 
 ---
 
-## `MachineSchedule`
+## `MachineScheduleColumn`
 Représente la timeline d’une machine spécifique.
 
 Responsabilités :
@@ -92,15 +92,7 @@ Propriétés typiques :
 }
 ```
 
----
 
-## `ClusterLegend`
-Simple légende affichant :
-- la couleur associée à chaque cluster,
-- le nom du cluster,
-- éventuellement les techniques incluses.
-
-Permet de réduire la charge cognitive.
 
 ---
 

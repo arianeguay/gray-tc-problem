@@ -17,6 +17,7 @@ import {
   fetchMockMovedAppointments,
   fetchResources,
 } from "./api";
+import { buildTechniqueMaps as buildTechniqueMapsUtil } from "../utils/clustering";
 
 /**
  * Construit les maps nécessaires à partir des activities et des clusters :
@@ -24,32 +25,10 @@ import {
  * - technique → meta de cluster (nom, couleur)
  */
 function buildTechniqueMaps(activities: Activity[], clusters: Cluster[]) {
-  const techniqueToLabel = new Map<string, string>();
-  const techniqueToCluster = new Map<string, ClusterMeta>();
-
-  // Labels de technique (fallback si l’appointment n’a pas technique_label)
-  for (const activity of activities) {
-    if (activity.technique) {
-      techniqueToLabel.set(
-        activity.technique,
-        activity.description || activity.technique
-      );
-    }
-  }
-
-  // Mapping technique → cluster
-  for (const cluster of clusters) {
-    const meta: ClusterMeta = {
-      id: cluster.id,
-      name: cluster.name,
-      color: cluster.color,
-    };
-
-    for (const technique of cluster.activities) {
-      techniqueToCluster.set(technique, meta);
-    }
-  }
-
+  const { techniqueToLabel, techniqueToCluster } = buildTechniqueMapsUtil(
+    activities,
+    clusters
+  );
   return { techniqueToLabel, techniqueToCluster };
 }
 
