@@ -1,7 +1,9 @@
+import { cn } from "./lib/utils";
+
 function App() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center">
-      <h1 className="text-xl">Hello World!</h1>
+    <div className={cn("flex min-h-screen flex-col items-center justify-center")}>
+      <h1 className={cn("text-xl")}>Hello World!</h1>
     </div>
   );
 }
