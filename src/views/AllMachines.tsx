@@ -1,28 +1,14 @@
-import { useEffect, useState } from "react";
-import { prepareData } from "./lib/prepareData";
-import type { PreparedData } from "./data/types";
-import SchedulesRow from "./components/scheduling-clusters/SchedulesRow";
-import { getAppointmentsMovedCount } from "./lib/utils/getAppointmentsMovedCount";
+import SchedulesRow from "@/components/scheduling-clusters/SchedulesRow";
+import type { PreparedData } from "@/data/types";
 
-function App() {
-  const [data, setData] = useState<PreparedData | null>(null);
-  const [currentDate, setCurrentDate] = useState<Date | null>(null);
-
-  useEffect(() => {
-    const setupData = async () => {
-      const prepared = await prepareData();
-      setData(prepared);
-    };
-
-    setupData();
-  }, []);
-
-  if (!data) return null;
-
-  const movedCount = getAppointmentsMovedCount(
-    data.after.flatMap((s) => s.appointments)
-  );
-
+interface AllMachinesViewProps {
+  data: PreparedData;
+  currentDate: Date;
+}
+const AllMachinesView: React.FC<AllMachinesViewProps> = ({
+  data,
+  currentDate,
+}) => {
   return (
     <div className="min-h-screen bg-slate-50 p-6 space-y-4">
       <header className="flex items-baseline justify-between">
@@ -31,7 +17,6 @@ function App() {
         </h1>
         {currentDate && (
           <h2 className="flex-1 text-center text-xl font-semibold text-slate-900">
-          
             {currentDate.toLocaleDateString(undefined, {
               weekday: "short",
               month: "short",
@@ -53,6 +38,6 @@ function App() {
       />
     </div>
   );
-}
+};
 
-export default App;
+export default AllMachinesView;

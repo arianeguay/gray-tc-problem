@@ -1,48 +1,69 @@
 import type { MachineSchedule } from "@/data/types";
-import type {
-  CalendarOptions,
-  CustomContentGenerator,
-  EventContentArg,
-  EventInput,
-  EventSourceInput,
-} from "@fullcalendar/core";
-import FullCalendar from "@fullcalendar/react";
-import timeGridPlugin from "@fullcalendar/timegrid";
-import { cn, computeEnd } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { getAppointmentsMovedCount } from "@/lib/utils/getAppointmentsMovedCount";
+import { Button } from "../ui/button";
+import { useEffect } from "react";
+import MachineCalendar from "./MachineCalendar";
 
+export interface MachineSchedulePair {
+  location: string;
+  before?: MachineSchedule;
+  after?: MachineSchedule;
+}
 interface MachineScheduleColumnProps {
-  pair: {
-    location: string;
-    before?: MachineSchedule;
-    after?: MachineSchedule;
-  };
+  pair: MachineSchedulePair;
+  onDateResolved?: (date: Date) => void;
+  showTimeLabels?: boolean;
 }
 
 const MachineScheduleColumn: React.FC<MachineScheduleColumnProps> = ({
   pair,
+  onDateResolved,
+  showTimeLabels,
 }) => {
   const { before, after, location } = pair;
 
+  const movedCount = getAppointmentsMovedCount(after?.appointments ?? []);
   const prettyName =
-    before?.resource?.pretty_name ??
-    after?.resource?.pretty_name ??
-    location;
+    before?.resource?.pretty_name ?? after?.resource?.pretty_name ?? location;
+
+  useEffect(() => {
+    const ts =
+      after?.appointments?.[0]?.scheduled_time ??
+      before?.appointments?.[0]?.scheduled_time;
+    if (!ts) return;
+    const d = new Date(ts);
+    if (isNaN(d.getTime())) return;
+    onDateResolved?.(d);
+  }, [after?.appointments, before?.appointments, onDateResolved]);
 
   return (
-    <section className={cn(
-      "flex flex-col gap-2",
-      "rounded-lg border border-slate-200 bg-white p-2 shadow-sm"
-    )}>
-      <h2 className="text-xs font-semibold text-slate-800 text-center">
-        {prettyName}
-      </h2>
+    <section
+      className={cn(
+        "flex flex-col gap-1",
+        "rounded-lg border border-slate-200 bg-white p-1 shadow-sm"
+      )}
+    >
+      <div className={cn("flex flex-col gap-1 items-center")}>
+        <h2 className="text-sm font-semibold text-slate-800 text-center">
+          {prettyName}
+        </h2>
+        <h3 className="text-xs font-semibold text-slate-500 text-center">
+          ({movedCount} appointments moved by the optimizer)
+        </h3>
+        <Button size={"sm"}>See by machine</Button>
+      </div>
 
       {before && (
         <div>
           <div className="mb-1 text-[11px] font-medium text-slate-500">
             Before
           </div>
-          <MachineCalendar schedule={before} variant="before" />
+          <MachineCalendar
+            schedule={before}
+            variant="before"
+            showTimeLabels={!!showTimeLabels}
+          />
         </div>
       )}
 
@@ -51,92 +72,14 @@ const MachineScheduleColumn: React.FC<MachineScheduleColumnProps> = ({
           <div className="mb-1 text-[11px] font-medium text-slate-500">
             After
           </div>
-          <MachineCalendar schedule={after} variant="after" />
+          <MachineCalendar
+            schedule={after}
+            variant="after"
+            showTimeLabels={!!showTimeLabels}
+          />
         </div>
       )}
     </section>
-  );
-};
-
-interface MachineCalendarProps {
-  schedule: MachineSchedule;
-  variant: "before" | "after";
-}
-
-const MachineCalendar: React.FC<MachineCalendarProps> = ({
-  schedule,
-  variant,
-}) => {
-  const { appointments } = schedule;
-
-  const events: EventSourceInput = appointments.map(
-    (appt): EventInput => ({
-      id: appt.id,
-      start: appt.scheduled_time,
-      end: computeEnd(appt),
-      title: appt.techniqueLabel,
-      extendedProps: {
-        clusterColor: appt.clusterMeta?.color,
-        moved: appt.isMoved,
-        modified: appt.isModified,
-      },
-    })
-  );
-
-  const eventClassNames: CalendarOptions["eventClassNames"] = (arg) => {
-    const moved = Boolean(arg.event.extendedProps["moved"]);
-    if (variant === "after" && moved) {
-      return ["ring-2", "ring-amber-400", "ring-offset-1"];
-    }
-    return [];
-  };
-
-  const eventContent: CustomContentGenerator<EventContentArg> = (arg) => {
-    const moved = Boolean(arg.event.extendedProps["moved"]);
-    const color = (arg.event.extendedProps["clusterColor"] ||
-      "#64748b") as string;
-
-    return (
-      <div
-        className="flex h-full flex-col justify-between px-1 py-0.5 text-[10px] leading-tight text-white"
-        style={{ backgroundColor: color }}
-      >
-        <div>
-          <div className="font-semibold">{arg.timeText}</div>
-          <div>{arg.event.title}</div>
-        </div>
-        {variant === "after" && moved && (
-          <span className="mt-0.5 inline-flex w-fit rounded-full bg-amber-100 px-1 text-[9px] font-semibold text-amber-700">
-            moved
-          </span>
-        )}
-      </div>
-    );
-  };
-
-  const options: CalendarOptions = {
-    plugins: [timeGridPlugin],
-    initialView: "timeGridDay",
-    initialDate: new Date(
-      appointments[0]?.scheduled_time ?? "2023-08-07T07:00:00-04:00"
-    ),
-    events,
-    weekends: false,
-    slotMinTime: "07:00",
-    slotMaxTime: "18:00",
-    headerToolbar: false,
-    allDaySlot: false,
-    expandRows: true,
-    height: "auto",
-    eventClassNames,
-    eventContent,
-  };
-
-  return (
-    <div className={cn("min-h-[260px]")}>
-      {/* cast pour calmer TS sur les options spécifiques */}
-      <FullCalendar {...(options as any)} />
-    </div>
   );
 };
 
