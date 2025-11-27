@@ -144,3 +144,32 @@ export const STATE = {
   CREATED: "grayos_created",
   NEW: "new",
 } as const;
+
+// Métadonnées de cluster attachées à un rendez-vous
+export interface ClusterMeta {
+  id: number;
+  name: string;
+  color: string;
+}
+
+// Rendez-vous enrichi pour l’UI
+export interface EnrichedAppointment extends Appointment {
+  clusterMeta?: ClusterMeta;
+  techniqueLabel: string;
+  isMoved: boolean;
+  isModified: boolean;
+}
+
+// Horaire d’une machine (avant / après)
+export interface MachineSchedule {
+  resource?: Resource; // peut être undefined si la resource n’est pas trouvée
+  location: string;
+  appointments: EnrichedAppointment[];
+}
+
+// Structure globale préparée pour l’UI
+export interface PreparedData {
+  before: MachineSchedule[];
+  after: MachineSchedule[];
+  clusters: ClusterMeta[];
+}
