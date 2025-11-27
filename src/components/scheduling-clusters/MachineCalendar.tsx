@@ -36,7 +36,7 @@ const eventContent: CustomContentGenerator<EventContentArg> = (arg) => {
       style={{
         backgroundColor: color,
         // white accent highlight (after + moved)
-        border: `3px solid ${borderColor}`,
+        border: `1px solid ${borderColor}`,
         borderLeft: `6px solid ${borderColor}`,
         outline: isHighlighted ? "1px solid rgba(255,255,255,0.6)" : "none",
         outlineOffset: 0,
