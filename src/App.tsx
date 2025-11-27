@@ -10,10 +10,20 @@ function App() {
   const [activePair, setActivePair] = useState<MachineSchedulePair | null>(
     null
   );
+  const [status, setStatus] = useState<"idle" | "loading" | "ready" | "error">(
+    "idle"
+  );
   useEffect(() => {
     const setupData = async () => {
-      const prepared = await prepareData();
-      setData(prepared);
+      try {
+        setStatus("loading");
+        const prepared = await prepareData();
+        setData(prepared);
+        setStatus("ready");
+      } catch (e) {
+        console.error("Failed to prepare data", e);
+        setStatus("error");
+      }
     };
 
     setupData();
@@ -21,7 +31,21 @@ function App() {
 
   const handleSeeAll = () => setActivePair(null);
 
-  if (!data) return null;
+  if (status === "loading" || (!data && status !== "error")) {
+    return (
+      <div className="min-h-screen bg-slate-50 p-6 flex items-center justify-center text-slate-700">
+        Loading daily schedule…
+      </div>
+    );
+  }
+
+  if (status === "error") {
+    return (
+      <div className="min-h-screen bg-slate-50 p-6 flex items-center justify-center text-slate-700">
+        An error occurred while loading data. Please refresh the page.
+      </div>
+    );
+  }
 
   return activePair ? (
     <SingleMachineView
@@ -31,7 +55,7 @@ function App() {
     />
   ) : (
     <AllMachinesView
-      data={data}
+      data={data!}
       currentDate={currentDate}
       setCurrentDate={setCurrentDate}
       setActivePair={setActivePair}

@@ -1,8 +1,6 @@
 import ComparisonByMachine from "@/components/scheduling-clusters/ComparisonByMachine";
 import { Button } from "@/components/ui/button";
 import type { MachineSchedulePair } from "@/data/types";
-import { getAppointmentsMovedCount } from "@/lib/utils/getAppointmentsMovedCount";
-import { useMemo } from "react";
 
 interface SingleMachineViewProps {
   pair: MachineSchedulePair;
@@ -14,14 +12,10 @@ const SingleMachineView: React.FC<SingleMachineViewProps> = ({
   pair,
   handleSeeAll,
 }) => {
-  const movedCount = useMemo(
-    () => getAppointmentsMovedCount(pair.after?.appointments ?? []),
-    [pair]
-  );
   return (
     <div className="min-h-screen bg-slate-50 p-6 space-y-4">
       <header>
-        <div className="flex items-baseline justify-between">
+        <div className="flex items-baseline justify-between gap-4">
           <h1 className="text-md font-medium text-slate-800 flex-1">
             Technique clustering — daily schedule
           </h1>
@@ -35,9 +29,7 @@ const SingleMachineView: React.FC<SingleMachineViewProps> = ({
               })}
             </h2>
           )}
-          <p className="text-xs text-slate-500 flex-1 text-right">
-            {movedCount} appointments moved by the optimizer
-          </p>
+          <div className="flex-1" />
         </div>
         <Button size={"sm"} onClick={handleSeeAll}>
           Back to global view
