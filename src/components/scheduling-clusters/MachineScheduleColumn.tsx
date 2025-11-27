@@ -12,6 +12,7 @@ interface MachineScheduleColumnProps {
   setActivePair: React.Dispatch<
     React.SetStateAction<MachineSchedulePair | null>
   >;
+  onlyMoved?: boolean;
 }
 
 const MachineScheduleColumn: React.FC<MachineScheduleColumnProps> = ({
@@ -19,6 +20,7 @@ const MachineScheduleColumn: React.FC<MachineScheduleColumnProps> = ({
   onDateResolved,
   showTimeLabels,
   setActivePair,
+  onlyMoved,
 }) => {
   const { before, after, location } = pair;
 
@@ -55,7 +57,7 @@ const MachineScheduleColumn: React.FC<MachineScheduleColumnProps> = ({
         </Button>
       </div>
 
-      {before && (
+      {before && !onlyMoved && (
         <div>
           <div className="mb-1 text-[11px] font-medium text-slate-500">
             Before
@@ -64,6 +66,7 @@ const MachineScheduleColumn: React.FC<MachineScheduleColumnProps> = ({
             schedule={before}
             variant="before"
             showTimeLabels={!!showTimeLabels}
+            onlyMoved={onlyMoved}
           />
         </div>
       )}
@@ -77,6 +80,7 @@ const MachineScheduleColumn: React.FC<MachineScheduleColumnProps> = ({
             schedule={after}
             variant="after"
             showTimeLabels={!!showTimeLabels}
+            onlyMoved={onlyMoved}
           />
         </div>
       )}

@@ -1,7 +1,7 @@
 import SchedulesRow from "@/components/scheduling-clusters/SchedulesRow";
 import type { MachineSchedulePair, PreparedData } from "@/data/types";
 import { getAppointmentsMovedCount } from "@/lib/utils/getAppointmentsMovedCount";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 interface AllMachinesViewProps {
   data: PreparedData;
@@ -21,9 +21,10 @@ const AllMachinesView: React.FC<AllMachinesViewProps> = ({
     () => getAppointmentsMovedCount(data.after.flatMap((s) => s.appointments)),
     [data]
   );
+  const [onlyMoved, setOnlyMoved] = useState(false);
   return (
     <div className="min-h-screen bg-slate-50 p-6 space-y-4">
-      <header className="flex items-baseline justify-between">
+      <header className="flex items-baseline justify-between gap-4">
         <h1 className="text-md font-medium text-slate-800 flex-1">
           Technique clustering — daily schedule
         </h1>
@@ -37,9 +38,20 @@ const AllMachinesView: React.FC<AllMachinesViewProps> = ({
             })}
           </h2>
         )}
-        <p className="text-xs text-slate-500 flex-1 text-right">
-          {movedCount} appointments moved by the optimizer
-        </p>
+        <div className="flex-1 flex items-center justify-end gap-4">
+          <label className="inline-flex items-center gap-2 text-xs text-slate-700">
+            <input
+              type="checkbox"
+              className="h-4 w-4 accent-slate-700"
+              checked={onlyMoved}
+              onChange={(e) => setOnlyMoved(e.target.checked)}
+            />
+            Show only moved
+          </label>
+          <p className="text-xs text-slate-500">
+            {movedCount} appointments moved by the optimizer
+          </p>
+        </div>
       </header>
 
       {/* Vue principale : 1 colonne par machine, Before/After empilés */}
@@ -48,6 +60,7 @@ const AllMachinesView: React.FC<AllMachinesViewProps> = ({
         after={data.after}
         onDateResolved={setCurrentDate}
         setActivePair={setActivePair}
+        onlyMoved={onlyMoved}
       />
     </div>
   );

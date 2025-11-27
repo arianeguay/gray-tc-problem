@@ -11,6 +11,7 @@ interface SchedulesRowProps {
   setActivePair: React.Dispatch<
     React.SetStateAction<MachineSchedulePair | null>
   >;
+  onlyMoved?: boolean;
 }
 
 type MachinePair = {
@@ -24,6 +25,7 @@ const SchedulesRow: React.FC<SchedulesRowProps> = ({
   after,
   onDateResolved,
   setActivePair,
+  onlyMoved,
 }) => {
   const machinePairs = useMemo<MachinePair[]>(() => {
     const map = new Map<string, MachinePair>();
@@ -74,6 +76,7 @@ const SchedulesRow: React.FC<SchedulesRowProps> = ({
             onDateResolved={onDateResolved}
             showTimeLabels={idx === 0}
             setActivePair={setActivePair}
+            onlyMoved={onlyMoved}
           />
         ))}
       </div>

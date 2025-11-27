@@ -34,6 +34,7 @@ interface MachineCalendarProps {
   schedule: MachineSchedule;
   variant: "before" | "after";
   showTimeLabels?: boolean;
+  onlyMoved?: boolean;
 }
 
 const eventContent: CustomContentGenerator<EventContentArg> = (arg) => {
@@ -69,7 +70,6 @@ const eventContent: CustomContentGenerator<EventContentArg> = (arg) => {
       {isHighlighted && (
         <OctagonAlert
           size={20}
-          color="rgba(255, 255, 255, 1)"
           style={{ position: "absolute", top: 8, right: 8 }}
         />
       )}
@@ -81,10 +81,13 @@ const MachineCalendar: React.FC<MachineCalendarProps> = ({
   schedule,
   variant,
   showTimeLabels,
+  onlyMoved,
 }) => {
   const { appointments } = schedule;
 
-  const events: EventSourceInput = appointments.map(
+  const events: EventSourceInput = appointments
+    .filter((appt) => (!onlyMoved ? true : Boolean(appt.isMoved)))
+    .map(
     (appt): EventInput => ({
       id: appt.id,
       start: appt.scheduled_time,
