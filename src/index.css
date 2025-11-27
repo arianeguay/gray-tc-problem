@@ -131,11 +131,21 @@
   .fc .fc-timegrid-slot {
     height: 116px !important;
   }
+  .fc-timegrid-event {
+    border: none !important;
+    padding: 0;
+  }
+  .fc-event .fc-event-main {
+    padding: 0;
+  }
   .fc-event-main .title {
     font-size: 16px;
     font-style: normal;
     font-weight: 500;
     line-height: normal;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
   }
   .fc-event-main .caption {
     font-size: 14px;

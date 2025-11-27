@@ -42,15 +42,12 @@ const MachineScheduleColumn: React.FC<MachineScheduleColumnProps> = ({
   return (
     <section
       className={cn(
-        "flex flex-col gap-1",
-        "rounded-lg border border-slate-200 bg-white p-1 shadow-sm"
+        "flex flex-col gap-2 rounded-lg border border-slate-200 bg-white p-2 shadow-sm"
       )}
     >
-      <div className={cn("flex flex-col gap-1 items-center")}>
-        <h2 className="text-sm font-semibold text-slate-800 text-center">
-          {prettyName}
-        </h2>
-        <h3 className="text-xs font-semibold text-slate-500 text-center">
+      <div className={cn("flex flex-col items-center gap-1")}>
+        <h2 className="text-xs font-semibold text-slate-800">{prettyName}</h2>
+        <h3 className="text-[10px] text-slate-500">
           ({movedCount} appointments moved by the optimizer)
         </h3>
         <Button size={"sm"} onClick={handleSeeByMachine}>

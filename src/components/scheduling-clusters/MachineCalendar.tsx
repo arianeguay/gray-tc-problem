@@ -9,6 +9,26 @@ import type {
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import { cn, computeEnd } from "@/lib/utils";
+import { OctagonAlert } from "lucide-react";
+
+function textColorForBackground(bg: string): string {
+  const hex = bg.trim();
+  const match = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.exec(hex);
+  if (!match) return "#ffffff";
+  let r = 0, g = 0, b = 0;
+  const h = match[1];
+  if (h.length === 3) {
+    r = parseInt(h[0] + h[0], 16);
+    g = parseInt(h[1] + h[1], 16);
+    b = parseInt(h[2] + h[2], 16);
+  } else {
+    r = parseInt(h.slice(0, 2), 16);
+    g = parseInt(h.slice(2, 4), 16);
+    b = parseInt(h.slice(4, 6), 16);
+  }
+  const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+  return yiq >= 186 ? "#111827" : "#ffffff";
+}
 
 interface MachineCalendarProps {
   schedule: MachineSchedule;
@@ -17,16 +37,28 @@ interface MachineCalendarProps {
 }
 
 const eventContent: CustomContentGenerator<EventContentArg> = (arg) => {
+  const moved = Boolean(arg.event.extendedProps["moved"]);
   const color = (arg.event.extendedProps["clusterColor"] ||
     "#64748b") as string;
 
+  const isAfter = Boolean(arg.event.extendedProps["isAfter"]);
+  const isHighlighted = moved && isAfter;
+
+  const borderColor = isHighlighted
+    ? "rgba(250, 91, 63, 0.95)"
+    : "rgba(15,23,42,0.25)";
+  const fg = textColorForBackground(color);
   return (
     <div
-      className={cn(
-        "flex h-full flex-col justify-between px-1 py-0.5 text-[10px] leading-tight text-white"
-      )}
+      className="flex h-full flex-col justify-between px-1 py-0.5 text-[10px] leading-tight text-white rounded-[3px]"
       style={{
         backgroundColor: color,
+        // white accent highlight (after + moved)
+        border: `3px solid ${borderColor}`,
+        borderLeft: `6px solid ${borderColor}`,
+        outline: isHighlighted ? "1px solid rgba(255,255,255,0.6)" : "none",
+        outlineOffset: 0,
+        color: fg,
       }}
     >
       <div>
@@ -34,9 +66,16 @@ const eventContent: CustomContentGenerator<EventContentArg> = (arg) => {
         <div className="caption">{arg.timeText}</div>
         <div className="caption">{arg.event.extendedProps.duration} mins</div>
       </div>
+      {isHighlighted && (
+        <OctagonAlert
+          size={20}
+          color="rgba(255, 255, 255, 1)"
+          style={{ position: "absolute", top: 8, right: 8 }}
+        />
+      )}
     </div>
   );
-};
+}
 
 const MachineCalendar: React.FC<MachineCalendarProps> = ({
   schedule,
@@ -56,21 +95,16 @@ const MachineCalendar: React.FC<MachineCalendarProps> = ({
         moved: appt.isMoved,
         modified: appt.isModified,
         duration: appt.duration,
+        isAfter: variant === "after",
       },
     })
   );
 
   const eventClassNames: CalendarOptions["eventClassNames"] = (arg) => {
     const moved = Boolean(arg.event.extendedProps["moved"]);
-    if (variant === "after" && moved) {
-      return [
-        "border-2",
-        "border-red-600",
-        "ring-2",
-        "ring-red-300",
-        "ring-offset-1",
-        "ring-offset-white",
-      ];
+    const isAfter = Boolean(arg.event.extendedProps["isAfter"]);
+    if (isAfter && moved) {
+      return ["ring-1", "ring-white", "ring-offset-0"]; // subtle white ring
     }
     return [];
   };

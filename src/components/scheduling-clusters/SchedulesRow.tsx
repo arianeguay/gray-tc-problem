@@ -2,6 +2,7 @@ import type { MachineSchedule, MachineSchedulePair } from "@/data/types";
 import { cn } from "@/lib/utils";
 import { useMemo } from "react";
 import MachineScheduleColumn from "./MachineScheduleColumn";
+import Legend from "./Legend";
 
 interface SchedulesRowProps {
   before: MachineSchedule[];
@@ -63,16 +64,19 @@ const SchedulesRow: React.FC<SchedulesRowProps> = ({
   }, [before, after]);
 
   return (
-    <div className={cn("grid gap-2", "md:grid-cols-2", "xl:grid-cols-5")}>
-      {machinePairs.map((pair, idx) => (
-        <MachineScheduleColumn
-          key={pair.location}
-          pair={pair}
-          onDateResolved={onDateResolved}
-          showTimeLabels={idx === 0}
-          setActivePair={setActivePair}
-        />
-      ))}
+    <div className="flex flex-col gap-3">
+      <Legend />
+      <div className={cn("grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5")}>
+        {machinePairs.map((pair, idx) => (
+          <MachineScheduleColumn
+            key={pair.location}
+            pair={pair}
+            onDateResolved={onDateResolved}
+            showTimeLabels={idx === 0}
+            setActivePair={setActivePair}
+          />
+        ))}
+      </div>
     </div>
   );
 };
