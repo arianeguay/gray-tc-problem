@@ -24,7 +24,7 @@ const Legend: React.FC = () => {
         <Swatch color="#64748b" label="Cluster color (varies by cluster)" />
         <Swatch
           color="#64748b"
-          borderLeft="3px solid rgba(255,255,255,0.95)"
+          borderLeft="3px solid rgba(250, 91, 63, 0.95)"
           label="Moved (after optimization)"
         />
         <div className="col-span-2 text-[11px] text-slate-500">
