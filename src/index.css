@@ -128,4 +128,19 @@
   .fc-hide-time-axis .fc-scrollgrid-shrink-cushion {
     display: none !important;
   }
+  .fc .fc-timegrid-slot {
+    height: 116px !important;
+  }
+  .fc-event-main .title {
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+  }
+  .fc-event-main .caption {
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+  }
 }

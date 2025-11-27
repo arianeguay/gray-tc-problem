@@ -17,7 +17,6 @@ interface MachineCalendarProps {
 }
 
 const eventContent: CustomContentGenerator<EventContentArg> = (arg) => {
-  const moved = Boolean(arg.event.extendedProps["moved"]);
   const color = (arg.event.extendedProps["clusterColor"] ||
     "#64748b") as string;
 
@@ -28,12 +27,12 @@ const eventContent: CustomContentGenerator<EventContentArg> = (arg) => {
       )}
       style={{
         backgroundColor: color,
-        border: moved ? "1px solid red" : undefined,
       }}
     >
       <div>
-        <div className="font-semibold">{arg.timeText}</div>
-        <div>{arg.event.title}</div>
+        <div className="title">{arg.event.title}</div>
+        <div className="caption">{arg.timeText}</div>
+        <div className="caption">{arg.event.extendedProps.duration} mins</div>
       </div>
     </div>
   );
@@ -56,6 +55,7 @@ const MachineCalendar: React.FC<MachineCalendarProps> = ({
         clusterColor: appt.clusterMeta?.color,
         moved: appt.isMoved,
         modified: appt.isModified,
+        duration: appt.duration,
       },
     })
   );
@@ -63,9 +63,20 @@ const MachineCalendar: React.FC<MachineCalendarProps> = ({
   const eventClassNames: CalendarOptions["eventClassNames"] = (arg) => {
     const moved = Boolean(arg.event.extendedProps["moved"]);
     if (variant === "after" && moved) {
-      return ["ring-2", "ring-amber-400", "ring-offset-1"];
+      return [
+        "border-2",
+        "border-red-600",
+        "ring-2",
+        "ring-red-300",
+        "ring-offset-1",
+        "ring-offset-white",
+      ];
     }
     return [];
+  };
+
+  const slotLaneClassNames: CalendarOptions["slotLaneClassNames"] = (arg) => {
+    return ["slot-lane"];
   };
 
   const options: CalendarOptions = {
@@ -76,6 +87,7 @@ const MachineCalendar: React.FC<MachineCalendarProps> = ({
     ),
     events,
     weekends: false,
+    slotDuration: "00:30",
     slotMinTime: "07:00",
     slotMaxTime: "18:00",
     headerToolbar: false,
@@ -83,6 +95,7 @@ const MachineCalendar: React.FC<MachineCalendarProps> = ({
     allDaySlot: false,
     expandRows: true,
     height: "auto",
+    slotLaneClassNames,
     eventClassNames,
     eventContent,
     slotLabelContent: showTimeLabels ? undefined : () => "",

@@ -1,4 +1,4 @@
-import type { MachineSchedule } from "@/data/types";
+import type { MachineSchedule, MachineSchedulePair } from "@/data/types";
 import { cn } from "@/lib/utils";
 import { useMemo } from "react";
 import MachineScheduleColumn from "./MachineScheduleColumn";
@@ -7,6 +7,9 @@ interface SchedulesRowProps {
   before: MachineSchedule[];
   after: MachineSchedule[];
   onDateResolved?: (date: Date) => void;
+  setActivePair: React.Dispatch<
+    React.SetStateAction<MachineSchedulePair | null>
+  >;
 }
 
 type MachinePair = {
@@ -15,7 +18,12 @@ type MachinePair = {
   after?: MachineSchedule;
 };
 
-const SchedulesRow: React.FC<SchedulesRowProps> = ({ before, after, onDateResolved }) => {
+const SchedulesRow: React.FC<SchedulesRowProps> = ({
+  before,
+  after,
+  onDateResolved,
+  setActivePair,
+}) => {
   const machinePairs = useMemo<MachinePair[]>(() => {
     const map = new Map<string, MachinePair>();
 
@@ -55,19 +63,14 @@ const SchedulesRow: React.FC<SchedulesRowProps> = ({ before, after, onDateResolv
   }, [before, after]);
 
   return (
-    <div
-      className={cn(
-        "grid gap-2",
-        "md:grid-cols-2",
-        "xl:grid-cols-5"
-      )}
-    >
+    <div className={cn("grid gap-2", "md:grid-cols-2", "xl:grid-cols-5")}>
       {machinePairs.map((pair, idx) => (
         <MachineScheduleColumn
           key={pair.location}
           pair={pair}
           onDateResolved={onDateResolved}
           showTimeLabels={idx === 0}
+          setActivePair={setActivePair}
         />
       ))}
     </div>

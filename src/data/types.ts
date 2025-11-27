@@ -173,3 +173,9 @@ export interface PreparedData {
   after: MachineSchedule[];
   clusters: ClusterMeta[];
 }
+
+export interface MachineSchedulePair {
+  location: string;
+  before?: MachineSchedule;
+  after?: MachineSchedule;
+}

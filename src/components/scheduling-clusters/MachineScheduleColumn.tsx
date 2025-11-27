@@ -1,28 +1,30 @@
-import type { MachineSchedule } from "@/data/types";
+import type { MachineSchedule, MachineSchedulePair } from "@/data/types";
 import { cn } from "@/lib/utils";
 import { getAppointmentsMovedCount } from "@/lib/utils/getAppointmentsMovedCount";
 import { Button } from "../ui/button";
 import { useEffect } from "react";
 import MachineCalendar from "./MachineCalendar";
 
-export interface MachineSchedulePair {
-  location: string;
-  before?: MachineSchedule;
-  after?: MachineSchedule;
-}
 interface MachineScheduleColumnProps {
   pair: MachineSchedulePair;
   onDateResolved?: (date: Date) => void;
   showTimeLabels?: boolean;
+  setActivePair: React.Dispatch<
+    React.SetStateAction<MachineSchedulePair | null>
+  >;
 }
 
 const MachineScheduleColumn: React.FC<MachineScheduleColumnProps> = ({
   pair,
   onDateResolved,
   showTimeLabels,
+  setActivePair,
 }) => {
   const { before, after, location } = pair;
 
+  const handleSeeByMachine = () => {
+    setActivePair(pair);
+  };
   const movedCount = getAppointmentsMovedCount(after?.appointments ?? []);
   const prettyName =
     before?.resource?.pretty_name ?? after?.resource?.pretty_name ?? location;
@@ -51,7 +53,9 @@ const MachineScheduleColumn: React.FC<MachineScheduleColumnProps> = ({
         <h3 className="text-xs font-semibold text-slate-500 text-center">
           ({movedCount} appointments moved by the optimizer)
         </h3>
-        <Button size={"sm"}>See by machine</Button>
+        <Button size={"sm"} onClick={handleSeeByMachine}>
+          See by machine
+        </Button>
       </div>
 
       {before && (

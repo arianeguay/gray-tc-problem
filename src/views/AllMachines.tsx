@@ -1,14 +1,26 @@
 import SchedulesRow from "@/components/scheduling-clusters/SchedulesRow";
-import type { PreparedData } from "@/data/types";
+import type { MachineSchedulePair, PreparedData } from "@/data/types";
+import { getAppointmentsMovedCount } from "@/lib/utils/getAppointmentsMovedCount";
+import { useMemo } from "react";
 
 interface AllMachinesViewProps {
   data: PreparedData;
-  currentDate: Date;
+  currentDate: Date | null;
+  setCurrentDate: React.Dispatch<React.SetStateAction<Date | null>>;
+  setActivePair: React.Dispatch<
+    React.SetStateAction<MachineSchedulePair | null>
+  >;
 }
 const AllMachinesView: React.FC<AllMachinesViewProps> = ({
   data,
   currentDate,
+  setCurrentDate,
+  setActivePair
 }) => {
+  const movedCount = useMemo(
+    () => getAppointmentsMovedCount(data.after.flatMap((s) => s.appointments)),
+    [data]
+  );
   return (
     <div className="min-h-screen bg-slate-50 p-6 space-y-4">
       <header className="flex items-baseline justify-between">
@@ -35,6 +47,7 @@ const AllMachinesView: React.FC<AllMachinesViewProps> = ({
         before={data.before}
         after={data.after}
         onDateResolved={setCurrentDate}
+        setActivePair={setActivePair}
       />
     </div>
   );
