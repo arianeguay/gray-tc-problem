@@ -11,9 +11,15 @@
 - Each appointment tile shows technique, time, and duration in minutes.
 
 ## Filters & interactions
-- Use the "See by machine" button on a machine card to focus on that machine.
+- A global summary module shows per‑machine moved counts and the total.
+- The "Show only moved" checkbox is in the summary (top‑right). When enabled, only moved appointments are shown; the Before column is hidden for clarity.
+- Use the "See by machine" button on a machine card to focus on that machine (SingleMachine view). The header layout remains consistent.
 - Time labels are shown on the first calendar column to reduce clutter.
 
 ## Legend
 - Cluster color: the base fill color of each appointment.
 - Moved (after): a subtle white left accent and light ring appears only in the After view.
+
+## Accessibility & readability
+- Text color automatically switches between dark and white for readability based on the appointment background color.
+- Highlights are intentionally subtle to avoid visual noise.

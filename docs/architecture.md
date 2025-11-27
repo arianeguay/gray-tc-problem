@@ -15,23 +15,30 @@ L’objectif : une architecture simple, lisible et facile à expliquer.
 ```
 src/
   components/
-    ScheduleColumn/
-    MachineSchedule/
-    AppointmentBlock/
-    ClusterLegend/
-    SummaryPanel/       (optionnel)
-  utils/
-    time.ts
-    clustering.ts
-    grouping.ts
+    scheduling-clusters/
+      ComparisonByMachine.tsx
+      GlobalDiffSummary.tsx
+      Legend.tsx
+      MachineCalendar.tsx
+      MachineScheduleColumn.tsx
+      SchedulesRow.tsx
+    ui/
+      button.tsx …
+  lib/
+    prepareData.ts
+    utils/
+      color.ts          (textColorForBackground)
+      clustering.ts
+      grouping.ts
+      time.ts
+  views/
+    AllMachines.tsx
+    SingleMachineView.tsx
   data/
     appointments.json
-    mock-moved-appointments.json
     clusters.json
     activities.json
     resources.json
-  types/
-    types.ts
   App.tsx
 ```
 
@@ -48,6 +55,7 @@ Responsabilités :
 - préparer les données via un petit module prepareData.ts, combinant appointments, clusters, activities et resources.
 - préparer les structures `before` et `after`,
 - injecter les données dans les composants “colonne”.
+- gérer les états `loading` / `error` minimalistes (fallbacks centrés).
 
 ---
 
@@ -59,6 +67,7 @@ Affiche l’une des deux vues :
 Responsabilités :
 - organiser les machines en colonnes verticales,
 - mapper chaque machine vers un `MachineSchedule`.
+- afficher la `Legend` au‑dessus de la grille.
 
 ---
 
@@ -69,19 +78,22 @@ Responsabilités :
 - afficher les rendez-vous de façon chronologique,
 - positionner les blocs sur l’axe temporel,
 - gérer les “gaps” (optionnel),
-- déléguer l’affichage visuel à `AppointmentBlock`.
+- déléguer l’affichage visuel à `MachineCalendar`.
+- propager le filtre `onlyMoved` vers les calendriers.
+- masquer la colonne "Before" quand `onlyMoved` est actif (pour une lecture plus directe du "After").
 
 ---
 
-## `AppointmentBlock`
-Le cœur visuel de l’interface.
+## `MachineCalendar`
+Le cœur visuel de l’interface (rendu FullCalendar).
 
 Responsabilités :
 - couleur selon le cluster,
-- highlight si `moved` ou `modified`,
+- highlight si `moved` dans la vue `After` (accent gauche + ring blancs subtils),
 - afficher technique + heure,
 - garder un visuel simple et lisible.
-- support de la propriété state.moved pour afficher un highlight visuel dans la vue AFTER.
+- support du filtre `onlyMoved` (filtrage à la source des events).
+- calcul de contraste via `textColorForBackground` (lib/utils/color.ts) pour sélectionner noir/blanc selon la couleur de fond.
 
 Propriétés typiques :
 ```ts
@@ -92,17 +104,13 @@ Propriétés typiques :
 }
 ```
 
-
-
 ---
 
-## `SummaryPanel` (optionnel)
-Petit panneau affichant :
-- nombre de rendez-vous déplacés,
-- nombre de clusters améliorés,
-- ou autre métrique simple.
-
-Permet de démontrer ta pensée analytique sans surcharger le scope.
+## `GlobalDiffSummary`
+Petit module contextuel affichant :
+- "X appointments moved on <Machine>", pour chaque machine,
+- "Total moved today: <Total>",
+- et le toggle global "Show only moved" (propagé à la grille).
 
 ---
 
@@ -137,13 +145,19 @@ Logique simple :
 
 ---
 
+## `color.ts`
+Fonctions de couleur :
+- `textColorForBackground(hex)`: renvoie `#111827` (noir) ou `#ffffff` (blanc) selon la luminance (YIQ).
+
+---
+
 # 4. Logique des états
 
 ## États gérés :
 - **normal**
 - **moved** (highlight)
 - **empty state** si une machine est vide
-- **loading** très minimal (si nécessaire)
+- **loading**/**error** (fallbacks minimalistes dans `App`)
 
 Pas de gestion avancée.  
 Clarté > sophistication.
