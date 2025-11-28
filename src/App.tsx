@@ -3,6 +3,8 @@ import { prepareData } from "./lib/prepareData";
 import type { MachineSchedulePair, PreparedData } from "./data/types";
 import AllMachinesView from "./views/AllMachines";
 import SingleMachineView from "./views/SingleMachineView";
+import Container from "./components/ui/container";
+import Sidebar from "./components/ui/sidebar";
 
 function App() {
   const [data, setData] = useState<PreparedData | null>(null);
@@ -47,19 +49,29 @@ function App() {
     );
   }
 
-  return activePair ? (
-    <SingleMachineView
-      pair={activePair}
-      currentDate={currentDate}
-      handleSeeAll={handleSeeAll}
-    />
-  ) : (
-    <AllMachinesView
-      data={data!}
-      currentDate={currentDate}
-      setCurrentDate={setCurrentDate}
-      setActivePair={setActivePair}
-    />
+  return (
+    <div
+      className="flex h-full"
+      style={{ height: "100vh", overflow: "hidden" }}
+    >
+      <Sidebar />
+      <Container>
+        {activePair ? (
+          <SingleMachineView
+            pair={activePair}
+            currentDate={currentDate}
+            handleSeeAll={handleSeeAll}
+          />
+        ) : (
+          <AllMachinesView
+            data={data!}
+            currentDate={currentDate}
+            setCurrentDate={setCurrentDate}
+            setActivePair={setActivePair}
+          />
+        )}
+      </Container>
+    </div>
   );
 }
 

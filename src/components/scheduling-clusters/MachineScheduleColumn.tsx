@@ -57,33 +57,35 @@ const MachineScheduleColumn: React.FC<MachineScheduleColumnProps> = ({
         </Button>
       </div>
 
-      {before && !onlyMoved && (
-        <div>
-          <div className="mb-1 text-[11px] font-medium text-slate-500">
-            Before
+      <div className="flex gap-1">
+        {before && !onlyMoved && (
+          <div>
+            <div className="mb-1 text-[11px] font-medium text-slate-500">
+              Before
+            </div>
+            <MachineCalendar
+              schedule={before}
+              variant="before"
+              showTimeLabels={!!showTimeLabels}
+              onlyMoved={onlyMoved}
+            />
           </div>
-          <MachineCalendar
-            schedule={before}
-            variant="before"
-            showTimeLabels={!!showTimeLabels}
-            onlyMoved={onlyMoved}
-          />
-        </div>
-      )}
+        )}
 
-      {after && (
-        <div>
-          <div className="mb-1 text-[11px] font-medium text-slate-500">
-            After
+        {after && (
+          <div>
+            <div className="mb-1 text-[11px] font-medium text-slate-500">
+              After
+            </div>
+            <MachineCalendar
+              schedule={after}
+              variant="after"
+              showTimeLabels={!!showTimeLabels}
+              onlyMoved={onlyMoved}
+            />
           </div>
-          <MachineCalendar
-            schedule={after}
-            variant="after"
-            showTimeLabels={!!showTimeLabels}
-            onlyMoved={onlyMoved}
-          />
-        </div>
-      )}
+        )}
+      </div>
     </section>
   );
 };

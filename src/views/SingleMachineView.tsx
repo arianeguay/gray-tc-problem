@@ -13,7 +13,7 @@ const SingleMachineView: React.FC<SingleMachineViewProps> = ({
   handleSeeAll,
 }) => {
   return (
-    <div className="min-h-screen bg-slate-50 p-6 space-y-4">
+    <div className="min-h-screen p-6 space-y-4">
       <header>
         <div className="flex items-baseline justify-between gap-4">
           <h1 className="text-md font-medium text-slate-800 flex-1">
